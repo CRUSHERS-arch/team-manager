@@ -2270,6 +2270,7 @@ function stopTraining(playerId) {
     showToast(`${p.name} 終了（種目なし）`, '⏹');
   }
   delete state.liveTraining[playerId];
+  saveData('liveTraining', state.liveTraining);
   renderLive();
 }
 
