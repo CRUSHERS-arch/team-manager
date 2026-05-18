@@ -2030,7 +2030,7 @@ function live() {
 }
 
 function renderLive() {
-  const active = Object.entries(state.liveTraining);
+  const active = Object.entries(state.liveTraining).sort(([aidx],[bidx]) => { const pa=getPlayer(aidx),pb=getPlayer(bidx); return ((pb&&pb.grade)||0)-((pa&&pa.grade)||0); });
   const now = new Date();
   const tabs = document.getElementById('live-tab-active') ? document.getElementById('live-tab-active').dataset.tab : 'active';
 
@@ -2068,7 +2068,7 @@ function renderLive() {
       </div>`;
   }).join('');
 
-  const inactivePlayers = state.players.filter(p => !state.liveTraining[p.id]);
+  const inactivePlayers = state.players.filter(p => !state.liveTraining[p.id]).slice().sort((a,b) => b.grade - a.grade);
 
   // Recent sessions
   const recentSessions = [...state.training].sort((a,b) => b.date.localeCompare(a.date) || (b.createdAt||'').localeCompare(a.createdAt||'')).slice(0, 20);
@@ -2611,6 +2611,7 @@ const SYMPTOM_ITEMS = ['頭痛', '吐き気', '腹痛', '喉の痛み', '発熱'
 // parentId,null = 親フォルダ内のサブフォルダ一覧
 // *,eventId = そのイベントの選手一覧
 let condNavStack = []; // [{id, name}]の履歴スタック
+let condDetailSearch = '';
 
 function renderCondCheckPanel() {
   if (condNavStack.length === 0) return renderCondEventList(null);
@@ -2620,7 +2621,7 @@ function renderCondCheckPanel() {
 }
 
 function condNavPush(item) { condNavStack.push(item); renderCondition(); }
-function condNavBack() { condNavStack.pop(); renderCondition(); }
+function condNavBack() { condNavStack.pop(); condDetailSearch = ''; renderCondition(); }
 function condNavReset() { condNavStack = []; renderCondition(); }
 
 function typeColor(type) {
@@ -2655,12 +2656,11 @@ function renderCondEventList(parentId) {
           const childCount = isFolder ? (state.condEvents||[]).filter(e => e.parentId === ev.id).length : 0;
           const color = typeColor(ev.type);
           return `
-            <div class="card" style="margin-bottom:.75rem;cursor:pointer;border-left:3px solid ${color}"
-              data-evid="${ev.id}" data-evname="${ev.name.replace(/"/g,'&quot;')}" data-evtype="${isFolder?'folder':'detail'}"
-              onclick="condNavPush({id:this.dataset.evid,name:this.dataset.evname,type:this.dataset.evtype})"
-            >
-              <div style="display:flex;align-items:center;justify-content:space-between">
-                <div style="flex:1;min-width:0">
+            <div class="card" style="margin-bottom:.75rem;border-left:3px solid ${color}">
+              <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
+                <div style="flex:1;min-width:0;cursor:pointer"
+                  data-evid="${ev.id}" data-evname="${ev.name.replace(/"/g,'&quot;')}" data-evtype="${isFolder?'folder':'detail'}"
+                  onclick="condNavPush({id:this.dataset.evid,name:this.dataset.evname,type:this.dataset.evtype})">
                   <div style="display:flex;align-items:center;gap:6px;margin-bottom:3px">
                     <span style="font-size:16px">${isFolder?'📁':'📋'}</span>
                     <span style="font-size:12px;font-weight:600;padding:2px 8px;border-radius:12px;background:${color}22;color:${color}">${ev.type}</span>
@@ -2668,14 +2668,59 @@ function renderCondEventList(parentId) {
                   </div>
                   <div style="font-size:12px;color:var(--text3)">${formatDate(ev.date)} ${isFolder ? `— ${childCount}項目` : `— ${checkedCount}/${state.players.length}名 記録済み`}</div>
                 </div>
-                <div style="display:flex;align-items:center;gap:6px">
-                  ${!isFolder ? `<div style="text-align:right"><div style="font-size:14px;font-weight:700;color:${checkedCount===state.players.length?'var(--green)':'var(--text2)'}">${state.players.length?Math.round(checkedCount/state.players.length*100):0}%</div></div>` : ''}
-                  <span style="font-size:20px;color:var(--text3)">›</span>
+                <div style="display:flex;align-items:center;gap:4px;flex-shrink:0">
+                  ${!isFolder ? `<div style="font-size:14px;font-weight:700;color:${checkedCount===state.players.length?'var(--green)':'var(--text2)'}; margin-right:4px">${state.players.length?Math.round(checkedCount/state.players.length*100):0}%</div>` : ''}
+                  <button class="btn btn-ghost btn-xs" onclick="event.stopPropagation();openCondEventEdit('${ev.id}')">編集</button>
+                  <button class="btn btn-danger btn-xs" onclick="event.stopPropagation();deleteCondEvent('${ev.id}')">削除</button>
                 </div>
               </div>
             </div>`;
         }).join('')
     }`;
+}
+
+function openCondEventEdit(id) {
+  const ev = (state.condEvents||[]).find(e => e.id === id);
+  if (!ev) return;
+  const isFolder = ev.type === 'フォルダ';
+  openModal(isFolder ? 'フォルダを編集' : 'イベントを編集', `
+    <div class="form-group"><label class="form-label">${isFolder?'フォルダ名':'イベント名'} *</label>
+      <input class="form-input" id="cev-name" value="${ev.name.replace(/"/g,'&quot;')}" />
+    </div>
+    <div class="form-row form-row-2">
+      <div class="form-group"><label class="form-label">日付</label>
+        <input class="form-input" type="date" id="cev-date" value="${ev.date}" />
+      </div>
+      ${!isFolder ? `<div class="form-group"><label class="form-label">種類</label>
+        <select class="form-select" id="cev-type">
+          <option ${ev.type==='練習'?'selected':''}>練習</option>
+          <option ${ev.type==='試合'?'selected':''}>試合</option>
+          <option ${ev.type==='合宿'?'selected':''}>合宿</option>
+          <option ${ev.type==='その他'?'selected':''}>その他</option>
+        </select>
+      </div>` : ''}
+    </div>
+    <div class="form-group"><label class="form-label">メモ</label>
+      <input class="form-input" id="cev-memo" value="${(ev.memo||'').replace(/"/g,'&quot;')}" placeholder="補足情報..." />
+    </div>
+  `, `<button class="btn btn-ghost" onclick="closeModal()">キャンセル</button>
+     <button class="btn btn-primary" data-id="${id}" onclick="saveCondEventEdit(this.dataset.id)">保存</button>`);
+}
+
+function saveCondEventEdit(id) {
+  const ev = (state.condEvents||[]).find(e => e.id === id);
+  if (!ev) return;
+  const name = document.getElementById('cev-name').value.trim();
+  if (!name) { alert('名前を入力してください'); return; }
+  const typeEl = document.getElementById('cev-type');
+  ev.name = name;
+  ev.date = document.getElementById('cev-date').value;
+  if (typeEl) ev.type = typeEl.value;
+  ev.memo = document.getElementById('cev-memo').value;
+  saveData('condEvents', state.condEvents);
+  closeModal();
+  showToast(`「${name}」を更新しました`);
+  renderCondition();
 }
 
 function openCondEventForm(createType, parentId) {
@@ -2733,6 +2778,9 @@ function renderCondEventDetail(eventId) {
   const checkedCount = new Set(checks.map(c => c.playerId)).size;
   const color = typeColor(ev.type);
 
+  const q = condDetailSearch.toLowerCase();
+  const filtered = state.players.filter(p => !q || p.name.toLowerCase().includes(q)).slice().sort((a,b) => b.grade - a.grade);
+
   const breadcrumb = `<div style="display:flex;align-items:center;gap:6px;margin-bottom:1rem;flex-wrap:wrap">
     <button class="btn btn-ghost btn-sm" onclick="condNavBack()">← 戻る</button>
     ${condNavStack.map(s => `<span style="font-size:12px;color:var(--text3)">› ${s.name}</span>`).join('')}
@@ -2740,13 +2788,16 @@ function renderCondEventDetail(eventId) {
   </div>`;
 
   return `${breadcrumb}
-    <div style="display:flex;align-items:center;gap:8px;margin-bottom:1rem">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:.75rem;flex-wrap:wrap">
       <span style="font-size:12px;padding:2px 8px;border-radius:12px;background:${color}22;color:${color};font-weight:600">${ev.type}</span>
       <span style="font-size:16px;font-weight:700">${ev.name}</span>
       <span style="font-size:12px;color:var(--text3)">${formatDate(ev.date)}</span>
       <span style="font-size:13px;color:var(--text2);margin-left:auto">${checkedCount}/${state.players.length}名</span>
     </div>
-    ${state.players.map(p => {
+    <input class="search-input" placeholder="選手名で検索..." value="${condDetailSearch}"
+      oninput="condDetailSearch=this.value;renderCondition()"
+      style="width:100%;margin-bottom:.75rem;box-sizing:border-box" />
+    ${filtered.map(p => {
       const check = checks.find(c => c.playerId === p.id);
       const symptoms = check ? (check.symptoms || []) : [];
       const hasInjury = check && check.injuryNote;
@@ -2756,6 +2807,7 @@ function renderCondEventDetail(eventId) {
             <div class="player-avatar" style="background:${avatarColor(parseInt((p.id||'p0').slice(1)))}; width:28px;height:28px;font-size:10px">${initials(p.name)}</div>
             <div style="flex:1;min-width:0">
               <div style="font-size:13px;font-weight:600">${p.name}</div>
+              <div style="font-size:11px;color:var(--text3)">${p.grade}年 / ${(Array.isArray(p.position)?p.position:[p.position]).join('/')}</div>
               ${check ? `<div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:3px">
                 ${symptoms.length > 0 ? symptoms.map(s => `<span style="font-size:10px;padding:1px 6px;border-radius:10px;background:rgba(248,113,113,0.15);color:#f87171;border:1px solid rgba(248,113,113,0.3)">${s}</span>`).join('') : '<span style="font-size:11px;color:var(--green)">症状なし</span>'}
                 ${check.otherSymptom ? `<span style="font-size:10px;padding:1px 6px;border-radius:10px;background:rgba(251,146,60,0.15);color:var(--orange)">${check.otherSymptom}</span>` : ''}
