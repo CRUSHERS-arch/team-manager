@@ -359,9 +359,8 @@ function loadData(key, fallback = []) {
 }
 
 // Load all data from Google Sheets on startup
-// リアルタイム筋トレの他端末同期（30秒ごと）
+// リアルタイム筋トレの他端末同期（5秒ごと）
 async function syncLiveTraining() {
-  if (state.currentSection !== 'live') return;
   try {
     const res = await fetch(GAS_URL + '?key=' + encodeURIComponent(STORAGE_KEY_PREFIX + 'liveTraining'));
     const text = await res.text();
@@ -477,7 +476,7 @@ function init() {
     if (renderers[state.currentSection]) renderers[state.currentSection]();
   });
   // リアルタイム同期: 30秒ごとにliveTrainingをシートから取得
-  setInterval(syncLiveTraining, 30000);
+  setInterval(syncLiveTraining, 5000);
 }
 
 function getSamplePlayers() {
