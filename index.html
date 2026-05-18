@@ -692,32 +692,60 @@ function dashboard() {
 
 // ========== PLAYERS ==========
 let playerSearch = '';
+let playerSort = 'grade_desc';
+
 function players() {
   setTopbarActions(`<input class="search-input" id="player-search" placeholder="選手を検索..." value="${playerSearch}" oninput="playerSearch=this.value;renderPlayerList()" /><button class="btn btn-primary btn-sm" onclick="openAddPlayer()">＋ 選手追加</button>`);
   renderPlayerList();
 }
 
+function sortedPlayers(list) {
+  const s = [...list];
+  if (playerSort === 'grade_desc') return s.sort((a,b) => b.grade - a.grade);
+  if (playerSort === 'grade_asc')  return s.sort((a,b) => a.grade - b.grade);
+  if (playerSort === 'position')   return s.sort((a,b) => { const pa=(Array.isArray(a.position)?a.position:[a.position])[0]||''; const pb=(Array.isArray(b.position)?b.position:[b.position])[0]||''; return pa.localeCompare(pb); });
+  if (playerSort === 'number')     return s.sort((a,b) => parseInt(a.number||0)-parseInt(b.number||0));
+  if (playerSort === 'name')       return s.sort((a,b) => a.name.localeCompare(b.name, 'ja'));
+  return s; // custom: state.players の順そのまま
+}
+
+function setPlayerSort(v) { playerSort = v; renderPlayerList(); }
+
 function renderPlayerList() {
   const q = playerSearch.toLowerCase();
-  const filtered = state.players.filter(p =>
-    p.name.toLowerCase().includes(q) || (Array.isArray(p.position)?p.position:[p.position]).some(pos=>pos.toLowerCase().includes(q)) || p.number.includes(q)
+  const filtered = sortedPlayers(
+    state.players.filter(p =>
+      p.name.toLowerCase().includes(q) ||
+      (Array.isArray(p.position)?p.position:[p.position]).some(pos=>pos.toLowerCase().includes(q)) ||
+      p.number.includes(q)
+    )
   );
+
+  const sortBtns = [
+    ['grade_desc','4→1年'],['grade_asc','1→4年'],['position','POS'],['number','番号'],
+  ].map(([v,l]) =>
+    `<button class="btn btn-xs ${playerSort===v?'btn-primary':'btn-ghost'}" onclick="setPlayerSort('${v}')">${l}</button>`
+  ).join('');
+
   setContent(`
+    <div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:.75rem;align-items:center">
+      <span style="font-size:11px;color:var(--text3);margin-right:2px">並び替え：</span>${sortBtns}
+    </div>
     <div class="table-wrap">
-      <table>
+      <table id="player-table">
         <thead>
           <tr>
-            <th>#</th><th>選手名</th><th>ポジション</th><th>学年</th><th>身長</th><th>直近出席率</th><th>直近体重</th><th>操作</th>
+            <th>#</th><th>選手名</th><th>POS</th><th>学年</th><th>身長</th><th>出席率</th><th>体重</th><th>操作</th>
           </tr>
         </thead>
-        <tbody>
-          ${filtered.length === 0 ? `<tr><td colspan="8"><div class="empty"><div class="empty-text">選手が見つかりません</div></div></td></tr>` :
+        <tbody id="player-tbody">
+          ${filtered.length === 0 ? `<tr><td colspan="9"><div class="empty"><div class="empty-text">選手が見つかりません</div></div></td></tr>` :
             filtered.map(p => {
               const att = state.attendance.filter(a => a.playerId === p.id);
               const rate = att.length ? Math.round(att.filter(a=>a.status==='出席').length/att.length*100) : null;
               const wt = state.weight.filter(w => w.playerId === p.id).sort((a,b) => b.date.localeCompare(a.date))[0];
               const colorIdx = parseInt(p.id.slice(1));
-              return `<tr>
+              return `<tr data-id="${p.id}">
                 <td><span class="td-mono" style="color:var(--text3)">${p.number}</span></td>
                 <td>
                   <div style="display:flex;align-items:center;gap:8px">
@@ -728,8 +756,8 @@ function renderPlayerList() {
                 <td>${(Array.isArray(p.position)?p.position:[p.position]).map(pos=>`<span class="badge ${getPositionColor(pos)}">${pos}</span>`).join(" ")}</td>
                 <td>${p.grade}年</td>
                 <td class="td-mono">${p.height ? p.height+'cm' : '—'}</td>
-                <td>${rate === null ? '<span class="badge badge-gray">未記録</span>' : `<span class="badge ${rate>=80?'badge-green':rate>=60?'badge-yellow':'badge-red'}">${rate}%</span>`}</td>
-                <td class="td-mono">${wt ? wt.weight + ' kg' : '—'}</td>
+                <td>${rate === null ? '<span class="badge badge-gray">未</span>' : `<span class="badge ${rate>=80?'badge-green':rate>=60?'badge-yellow':'badge-red'}">${rate}%</span>`}</td>
+                <td class="td-mono">${wt ? wt.weight+'kg' : '—'}</td>
                 <td>
                   <div style="display:flex;gap:4px">
                     <button class="btn btn-ghost btn-xs" onclick="showPlayerDetail('${p.id}')">詳細</button>
@@ -744,6 +772,30 @@ function renderPlayerList() {
       </table>
     </div>
   `);
+}
+
+// ドラッグ並び替え
+let _dragId = null;
+function dragPlayerStart(e) {
+  _dragId = e.currentTarget.dataset.id;
+  e.currentTarget.style.opacity = '0.5';
+}
+function dragPlayerDrop(e) {
+  e.preventDefault();
+  const targetId = e.currentTarget.dataset.id;
+  if (!_dragId || _dragId === targetId) { resetDragStyle(); return; }
+  const fromIdx = state.players.findIndex(p => p.id === _dragId);
+  const toIdx   = state.players.findIndex(p => p.id === targetId);
+  if (fromIdx < 0 || toIdx < 0) { resetDragStyle(); return; }
+  const moved = state.players.splice(fromIdx, 1)[0];
+  state.players.splice(toIdx, 0, moved);
+  saveData('players', state.players);
+  _dragId = null;
+  renderPlayerList();
+}
+function resetDragStyle() {
+  _dragId = null;
+  document.querySelectorAll('#player-tbody tr').forEach(r => r.style.opacity = '1');
 }
 
 function openAddPlayer() {
@@ -1825,11 +1877,34 @@ function analytics() {
   }
 }
 
+let analyticsSort = 'grade_desc';
+function setAnalyticsSort(v) { analyticsSort = v; renderAnalyticsPlayerSelect(); }
+
 function renderAnalyticsPlayerSelect() {
+  const sortBtns = [
+    ['grade_desc','4→1年'],['grade_asc','1→4年'],['position','POS'],['number','番号'],
+  ].map(([v,l]) =>
+    `<button class="btn btn-xs ${analyticsSort===v?'btn-primary':'btn-ghost'}" onclick="setAnalyticsSort('${v}')">${l}</button>`
+  ).join('');
+
+  const sorted = sortedPlayers(state.players).filter(()=>true);
+  if (analyticsSort !== 'custom') {
+    sorted.sort((a,b) => {
+      if (analyticsSort==='grade_desc') return b.grade-a.grade;
+      if (analyticsSort==='grade_asc')  return a.grade-b.grade;
+      if (analyticsSort==='position') { const pa=(Array.isArray(a.position)?a.position:[a.position])[0]||'',pb=(Array.isArray(b.position)?b.position:[b.position])[0]||''; return pa.localeCompare(pb); }
+      if (analyticsSort==='number') return parseInt(a.number||0)-parseInt(b.number||0);
+      if (analyticsSort==='name') return a.name.localeCompare(b.name,'ja');
+      return 0;
+    });
+  }
+
   setContent(`
-    <p style="color:var(--text2);margin-bottom:1rem;font-size:14px">選手を選んで詳細データを確認します</p>
+    <div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:1rem;align-items:center">
+      <span style="font-size:11px;color:var(--text3);margin-right:2px">並び替え：</span>${sortBtns}
+    </div>
     <div class="grid3">
-      ${state.players.map((p, i) => {
+      ${sorted.map((p, i) => {
         const att = state.attendance.filter(a => a.playerId === p.id);
         const rate = att.length ? Math.round(att.filter(a=>a.status==='出席').length/att.length*100) : null;
         const wt = state.weight.filter(w=>w.playerId===p.id).sort((a,b)=>b.date.localeCompare(a.date))[0];
