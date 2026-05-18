@@ -42,13 +42,13 @@ body { font-family: 'Noto Sans JP', sans-serif; background: var(--bg); color: va
 .logo-sub { font-size: 11px; color: var(--text3); margin-top: 2px; }
 .sidebar-nav { flex: 1; padding: 0.75rem 0; overflow-y: auto; }
 .nav-section { padding: 0.5rem 0.75rem 0.25rem; font-size: 10px; font-weight: 700; color: var(--text3); letter-spacing: 0.08em; text-transform: uppercase; }
-.nav-item { display: flex; align-items: center; gap: 8px; padding: 7px 1rem; cursor: pointer; font-size: 13px; color: var(--text2); border-left: 2px solid transparent; transition: all 0.15s; }
+.nav-item { display: flex; align-items: center; gap: 10px; padding: 11px 1rem; cursor: pointer; font-size: 14px; color: var(--text2); border-left: 2px solid transparent; transition: all 0.15s; min-height: 46px; }
 .nav-item:hover { color: var(--text); background: var(--surface2); }
 .nav-item.active { color: var(--accent); border-left-color: var(--accent); background: rgba(79,156,249,0.07); }
 .nav-icon { font-size: 16px; width: 18px; text-align: center; }
 
 /* Topbar */
-.topbar { display: flex; align-items: center; justify-content: space-between; padding: 0.75rem 1.5rem; border-bottom: 1px solid var(--border); background: var(--surface); flex-shrink: 0; }
+.topbar { display: flex; align-items: center; justify-content: space-between; padding: 0.75rem 1.5rem; border-bottom: 1px solid var(--border); background: var(--surface); flex-shrink: 0; gap: 8px; }
 .topbar-title { font-size: 16px; font-weight: 700; }
 .topbar-actions { display: flex; gap: 8px; align-items: center; }
 
@@ -172,10 +172,76 @@ tr:hover td { background: rgba(255,255,255,0.02); }
 ::-webkit-scrollbar-thumb { background: var(--surface3); border-radius: 4px; }
 
 /* Responsive */
-@media (max-width: 700px) {
-  .sidebar { display: none; }
+/* ハンバーガーボタン */
+.hamburger { display: none; background: none; border: none; color: var(--text); font-size: 24px; cursor: pointer; padding: 6px 10px; line-height: 1; align-items: center; justify-content: center; min-width: 44px; min-height: 44px; }
+.sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 49; }
+
+@media (max-width: 768px) {
+  /* サイドバーをスライドオーバーに */
+  .sidebar {
+    position: fixed; top: 0; left: 0; height: 100dvh; z-index: 50;
+    transform: translateX(-100%); transition: transform 0.25s ease;
+    width: 260px; box-shadow: 4px 0 24px rgba(0,0,0,0.5);
+  }
+  .sidebar.open { transform: translateX(0); }
+  .sidebar-overlay.open { display: block; }
+  .hamburger { display: flex !important; }
+
+  /* レイアウト */
+  .app { flex-direction: column; height: 100dvh; }
+  .main { width: 100%; min-width: 0; }
+  .topbar { padding: 0.65rem 0.75rem; gap: 6px; min-height: 52px; }
+  .topbar-title { font-size: 14px; flex: 1; text-align: center; }
+  .topbar-actions { gap: 4px; flex-wrap: wrap; justify-content: flex-end; max-width: 50%; }
+  .topbar-actions .btn { padding: 6px 9px; font-size: 12px; }
+  .topbar-actions .search-input { width: 110px; font-size: 12px; }
+  .topbar-actions .date-input-sm { font-size: 11px; padding: 4px 6px; max-width: 120px; }
+  .content { padding: 0.75rem; padding-bottom: 3rem; overflow-y: auto; }
+
+  /* グリッド */
   .form-row-3, .form-row-4 { grid-template-columns: 1fr 1fr; }
   .form-row-2 { grid-template-columns: 1fr; }
+  .grid2, .grid3 { grid-template-columns: 1fr !important; }
+  .stats-row { grid-template-columns: repeat(2, 1fr) !important; gap: 8px; }
+
+  /* テーブル: 横スクロール */
+  .table-wrap { font-size: 12px; border-radius: var(--radius); }
+  th, td { padding: 7px 8px; white-space: nowrap; }
+
+  /* カード */
+  .card { padding: 0.85rem; }
+  .card-sm { padding: 0.75rem; }
+
+  /* モーダル: 下から出る */
+  .modal-overlay { align-items: flex-end !important; padding: 0 !important; }
+  .modal {
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0 !important;
+    max-height: 92dvh !important; width: 100% !important;
+    padding: 1.25rem 1rem !important; margin: 0 !important;
+  }
+
+  /* ボタン: タップしやすく */
+  .btn { min-height: 38px; }
+  .btn-xs { padding: 5px 9px; font-size: 12px; min-height: 30px; }
+  .btn-sm { padding: 7px 12px; font-size: 13px; }
+
+  /* フォーム: 入力しやすく */
+  .form-input, .form-select { padding: 10px 12px; font-size: 16px !important; min-height: 44px; }
+  .form-label { font-size: 13px; margin-bottom: 6px; }
+
+  /* タブ */
+  .tab { padding: 10px 12px; font-size: 13px; }
+  .tabs { overflow-x: auto; }
+
+  /* stat-card */
+  .stat-val { font-size: 22px; }
+  .kpi-num { font-size: 26px; }
+
+  /* player avatar */
+  .player-avatar { width: 28px !important; height: 28px !important; font-size: 10px !important; }
+
+  /* badge */
+  .badge { font-size: 10px; padding: 2px 7px; }
 }
 
 .trend-up { color: var(--green); font-size: 11px; }
@@ -216,6 +282,10 @@ tr:hover td { background: rgba(255,255,255,0.02); }
       <div class="nav-item" onclick="navigate('weight')">
         <span class="nav-icon">⚖️</span> 体重管理
       </div>
+      <div class="nav-section">コンディション</div>
+      <div class="nav-item" onclick="navigate('condition')">
+        <span class="nav-icon">🏥</span> コンディション管理
+      </div>
       <div class="nav-section">設定</div>
       <div class="nav-item" onclick="navigate('exercisemgr')">
         <span class="nav-icon">⚙️</span> 種目管理
@@ -230,6 +300,7 @@ tr:hover td { background: rgba(255,255,255,0.02); }
   <!-- Main -->
   <div class="main">
     <div class="topbar">
+      <button class="hamburger" onclick="toggleSidebar()" aria-label="メニュー">☰</button>
       <div class="topbar-title" id="topbar-title">ダッシュボード</div>
       <div class="topbar-actions" id="topbar-actions"></div>
     </div>
@@ -238,6 +309,9 @@ tr:hover td { background: rgba(255,255,255,0.02); }
     </div>
   </div>
 </div>
+
+<!-- Sidebar overlay -->
+<div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
 
 <!-- Toast -->
 <div class="toast" id="toast">
@@ -286,10 +360,11 @@ function loadData(key, fallback = []) {
 
 // Load all data from Google Sheets on startup
 async function syncFromSheets() {
-  const keys = ['players','attendance','training','fieldtest','maxtest','weight','customExercises','playerExercises'];
+  const keys = ['players','attendance','training','fieldtest','maxtest','weight','customExercises','playerExercises','customFieldTests','injuries','conditionChecks','condEvents'];
   const defaults = {
     players: getSamplePlayers(), attendance: [], training: [], fieldtest: [],
-    maxtest: [], weight: [], customExercises: {}, playerExercises: {}
+    maxtest: [], weight: [], customExercises: {}, playerExercises: {},
+    customFieldTests: [], injuries: [], conditionChecks: [], condEvents: []
   };
   showSyncStatus('☁️ データを同期中...');
   let loaded = 0;
@@ -339,6 +414,10 @@ let state = {
   liveTraining: {}, // playerId -> { startTime: ISO string }
   customExercises: {}, // category -> [name, ...]
   playerExercises: {}, // playerId -> { cat: [name,...], __deleted__: [...] }
+  customFieldTests: [], // user-added field test names
+  injuries: [], // injury records
+  conditionChecks: [], // condition check records
+  condEvents: [], // condition check event folders
 };
 
 // ========== INIT ==========
@@ -352,11 +431,15 @@ function init() {
   state.weight = loadData('weight', []);
   state.customExercises = loadData('customExercises', {});
   state.playerExercises = loadData('playerExercises', {});
+  state.customFieldTests = loadData('customFieldTests', []);
+  state.injuries = loadData('injuries', []);
+  state.conditionChecks = loadData('conditionChecks', []);
+  state.condEvents = loadData('condEvents', []);
   navigate('dashboard');
   // Then sync from Google Sheets in background
   syncFromSheets().then(() => {
     // Re-render current section after sync
-    const renderers = { dashboard, players, attendance, fieldtest, maxtest, weight, analytics, live, exercisemgr };
+    const renderers = { dashboard, players, attendance, fieldtest, maxtest, weight, analytics, live, exercisemgr, condition };
     if (renderers[state.currentSection]) renderers[state.currentSection]();
   });
 }
@@ -388,9 +471,16 @@ const SECTION_TITLES = {
   analytics: '選手詳細',
   live: '筋トレ管理',
   exercisemgr: '種目管理',
+  condition: 'コンディション管理',
 };
 
 function navigate(section) {
+  closeSidebar();
+  // 怪我管理ページから離れたら自動ロック
+  if (state.currentSection === 'condition' && section !== 'condition') {
+    injuryUnlocked = false;
+    injurySearch = '';
+  }
   state.currentSection = section;
   document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
   const navItems = document.querySelectorAll('.nav-item');
@@ -400,8 +490,24 @@ function navigate(section) {
     }
   });
   document.getElementById('topbar-title').textContent = SECTION_TITLES[section] || section;
-  const renderers = { dashboard, players, attendance, fieldtest, maxtest, weight, analytics, live, exercisemgr };
+  const renderers = { dashboard, players, attendance, fieldtest, maxtest, weight, analytics, live, exercisemgr, condition };
   if (renderers[section]) renderers[section]();
+}
+
+// ========== SIDEBAR MOBILE ==========
+function toggleSidebar() {
+  const sb = document.querySelector('.sidebar');
+  const ov = document.getElementById('sidebar-overlay');
+  if (!sb) return;
+  const isOpen = sb.classList.contains('open');
+  if (isOpen) { sb.classList.remove('open'); if (ov) ov.classList.remove('open'); }
+  else { sb.classList.add('open'); if (ov) ov.classList.add('open'); }
+}
+function closeSidebar() {
+  const sb = document.querySelector('.sidebar');
+  const ov = document.getElementById('sidebar-overlay');
+  if (sb) sb.classList.remove('open');
+  if (ov) ov.classList.remove('open');
 }
 
 // ========== UTILITIES ==========
@@ -566,11 +672,11 @@ function renderPlayerList() {
       <table>
         <thead>
           <tr>
-            <th>#</th><th>選手名</th><th>ポジション</th><th>学年</th><th>直近出席率</th><th>直近体重</th><th>操作</th>
+            <th>#</th><th>選手名</th><th>ポジション</th><th>学年</th><th>身長</th><th>直近出席率</th><th>直近体重</th><th>操作</th>
           </tr>
         </thead>
         <tbody>
-          ${filtered.length === 0 ? `<tr><td colspan="7"><div class="empty"><div class="empty-text">選手が見つかりません</div></div></td></tr>` :
+          ${filtered.length === 0 ? `<tr><td colspan="8"><div class="empty"><div class="empty-text">選手が見つかりません</div></div></td></tr>` :
             filtered.map(p => {
               const att = state.attendance.filter(a => a.playerId === p.id);
               const rate = att.length ? Math.round(att.filter(a=>a.status==='出席').length/att.length*100) : null;
@@ -586,6 +692,7 @@ function renderPlayerList() {
                 </td>
                 <td>${(Array.isArray(p.position)?p.position:[p.position]).map(pos=>`<span class="badge ${getPositionColor(pos)}">${pos}</span>`).join(" ")}</td>
                 <td>${p.grade}年</td>
+                <td class="td-mono">${p.height ? p.height+'cm' : '—'}</td>
                 <td>${rate === null ? '<span class="badge badge-gray">未記録</span>' : `<span class="badge ${rate>=80?'badge-green':rate>=60?'badge-yellow':'badge-red'}">${rate}%</span>`}</td>
                 <td class="td-mono">${wt ? wt.weight + ' kg' : '—'}</td>
                 <td>
@@ -611,6 +718,10 @@ function openAddPlayer() {
       <div class="form-group"><label class="form-label">背番号</label><input class="form-input" id="f-number" placeholder="例: 07" /></div>
     </div>
     <div class="form-row form-row-2">
+      <div class="form-group"><label class="form-label">身長 (cm)</label><input class="form-input" type="number" id="f-height" placeholder="175" min="100" max="250" step="0.1" /></div>
+      <div class="form-group"></div>
+    </div>
+    <div class="form-row form-row-2">
       <div class="form-group"><label class="form-label">ポジション</label>
         <div style="display:flex;flex-wrap:wrap;gap:2px;padding:8px;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius)"><label style="display:inline-flex;align-items:center;gap:4px;margin-right:8px;margin-bottom:4px;font-size:13px;cursor:pointer"><input type="checkbox" class="pos-check" value="QB"> QB</label><label style="display:inline-flex;align-items:center;gap:4px;margin-right:8px;margin-bottom:4px;font-size:13px;cursor:pointer"><input type="checkbox" class="pos-check" value="RB"> RB</label><label style="display:inline-flex;align-items:center;gap:4px;margin-right:8px;margin-bottom:4px;font-size:13px;cursor:pointer"><input type="checkbox" class="pos-check" value="WR"> WR</label><label style="display:inline-flex;align-items:center;gap:4px;margin-right:8px;margin-bottom:4px;font-size:13px;cursor:pointer"><input type="checkbox" class="pos-check" value="OL"> OL</label><label style="display:inline-flex;align-items:center;gap:4px;margin-right:8px;margin-bottom:4px;font-size:13px;cursor:pointer"><input type="checkbox" class="pos-check" value="DL"> DL</label><label style="display:inline-flex;align-items:center;gap:4px;margin-right:8px;margin-bottom:4px;font-size:13px;cursor:pointer"><input type="checkbox" class="pos-check" value="LB"> LB</label><label style="display:inline-flex;align-items:center;gap:4px;margin-right:8px;margin-bottom:4px;font-size:13px;cursor:pointer"><input type="checkbox" class="pos-check" value="DB"> DB</label><label style="display:inline-flex;align-items:center;gap:4px;margin-right:8px;margin-bottom:4px;font-size:13px;cursor:pointer"><input type="checkbox" class="pos-check" value="TE"> TE</label><label style="display:inline-flex;align-items:center;gap:4px;margin-right:8px;margin-bottom:4px;font-size:13px;cursor:pointer"><input type="checkbox" class="pos-check" value="K"> K</label></div>
       </div>
@@ -630,6 +741,7 @@ function saveNewPlayer() {
     number: document.getElementById('f-number').value || '00',
     position: [...document.querySelectorAll('.pos-check:checked')].map(c=>c.value),
     grade: parseInt(document.getElementById('f-grade').value),
+    height: parseFloat(document.getElementById('f-height').value) || null,
     createdAt: new Date().toISOString(),
   };
   state.players.push(p);
@@ -646,6 +758,10 @@ function editPlayer(id) {
     <div class="form-row form-row-2">
       <div class="form-group"><label class="form-label">選手名 *</label><input class="form-input" id="f-name" value="${p.name}" /></div>
       <div class="form-group"><label class="form-label">背番号</label><input class="form-input" id="f-number" value="${p.number}" /></div>
+    </div>
+    <div class="form-row form-row-2">
+      <div class="form-group"><label class="form-label">身長 (cm)</label><input class="form-input" type="number" id="f-height" placeholder="175" value="${p.height||''}" min="100" max="250" step="0.1" /></div>
+      <div class="form-group"></div>
     </div>
     <div class="form-row form-row-2">
       <div class="form-group"><label class="form-label">ポジション</label>
@@ -665,6 +781,7 @@ function saveEditPlayer(id) {
   p.number = document.getElementById('f-number').value || p.number;
   p.position = [...document.querySelectorAll('.pos-check:checked')].map(c=>c.value);
   p.grade = parseInt(document.getElementById('f-grade').value);
+  p.height = parseFloat(document.getElementById('f-height').value) || null;
   saveData('players', state.players);
   closeModal();
   showToast('選手情報を更新しました');
@@ -1162,8 +1279,8 @@ function renderFieldTestPage() {
   }
 }
 
-const FIELD_TESTS = ['40ヤードダッシュ','10ヤードスプリント','20ヤードシャトル','ブロードジャンプ','バーティカルジャンプ','コーンドリル'];
-const FIELD_TEST_UNITS = { '40ヤードダッシュ':'秒', '10ヤードスプリント':'秒', '20ヤードシャトル':'秒', 'ブロードジャンプ':'cm', 'バーティカルジャンプ':'cm', 'コーンドリル':'秒' };
+const FIELD_TESTS = ['40ヤード走','3コーン','プロアジ','垂直跳び'];
+const FIELD_TEST_UNITS = { '40ヤード走':'秒', '3コーン':'秒', 'プロアジ':'秒', '垂直跳び':'cm' };
 
 let _ftItems = []; // temp items in modal
 
@@ -1287,21 +1404,26 @@ function openFieldTestForm() {
 
     <div style="background:var(--surface2);border-radius:var(--radius);padding:1rem;margin-bottom:1rem">
       <div style="font-size:12px;font-weight:600;color:var(--text2);margin-bottom:10px">種目を追加</div>
-      <div class="form-row form-row-2" style="margin-bottom:8px">
-        <div class="form-group" style="margin:0"><label class="form-label">種目</label>
-          <select class="form-select" id="f-ft-test" onchange="autoFillUnit()">
-            ${FIELD_TESTS.map(t=>`<option>${t}</option>`).join('')}
-            <option value="その他">その他</option>
-          </select>
+      <div class="form-group" style="margin-bottom:8px"><label class="form-label">種目</label>
+        <select class="form-select" id="f-ft-test" onchange="autoFillUnit()">
+          ${FIELD_TESTS.map(t=>`<option>${t}</option>`).join('')}
+          ${(state.customFieldTests||[]).map(t=>`<option>${t}</option>`).join('')}
+          <option value="__ft_custom__">＋ その他（自由入力）</option>
+        </select>
+        <div id="f-ft-custom-wrap" style="display:none;margin-top:6px;gap:6px">
+          <input class="form-input" id="f-ft-custom-name" placeholder="種目名を入力..." style="margin-bottom:4px" />
+          <button class="btn btn-ghost btn-sm" style="width:100%" onclick="addCustomFieldTest()">この種目名で保存して追加</button>
+        </div>
+      </div>
+      <div class="form-row form-row-2" style="margin-bottom:10px">
+        <div class="form-group" style="margin:0"><label class="form-label">結果</label>
+          <input class="form-input" type="number" id="f-ft-result" placeholder="4.52" step="0.01" />
         </div>
         <div class="form-group" style="margin:0"><label class="form-label">単位</label>
           <select class="form-select" id="f-ft-unit">
             <option>秒</option><option>cm</option><option>m</option><option>回</option><option>その他</option>
           </select>
         </div>
-      </div>
-      <div class="form-group" style="margin-bottom:10px"><label class="form-label">結果</label>
-        <input class="form-input" type="number" id="f-ft-result" placeholder="4.52" step="0.01" />
       </div>
       <button class="btn btn-ghost" style="width:100%;justify-content:center" onclick="addFtItem()">＋ 種目を追加</button>
     </div>
@@ -1315,6 +1437,8 @@ function openFieldTestForm() {
 
 function autoFillUnit() {
   const test = document.getElementById('f-ft-test').value;
+  const wrap = document.getElementById('f-ft-custom-wrap');
+  if (wrap) wrap.style.display = test === '__ft_custom__' ? 'block' : 'none';
   const unit = FIELD_TEST_UNITS[test];
   if (unit) {
     const sel = document.getElementById('f-ft-unit');
@@ -1324,11 +1448,37 @@ function autoFillUnit() {
   }
 }
 
+function addCustomFieldTest() {
+  const inp = document.getElementById('f-ft-custom-name');
+  const name = inp ? inp.value.trim() : '';
+  if (!name) { alert('種目名を入力してください'); return; }
+  if (!state.customFieldTests.includes(name)) {
+    state.customFieldTests.push(name);
+    saveData('customFieldTests', state.customFieldTests);
+  }
+  // Update select
+  const sel = document.getElementById('f-ft-test');
+  // insert before __ft_custom__ option
+  const customOpt = document.createElement('option');
+  customOpt.value = name; customOpt.textContent = name;
+  sel.insertBefore(customOpt, sel.querySelector('[value="__ft_custom__"]'));
+  sel.value = name;
+  if (inp) inp.value = '';
+  document.getElementById('f-ft-custom-wrap').style.display = 'none';
+  showToast(`「${name}」を追加しました`);
+}
+
 function addFtItem() {
   const result = parseFloat(document.getElementById('f-ft-result').value);
   if (!result) { alert('結果を入力してください'); return; }
+  let testName = document.getElementById('f-ft-test').value;
+  if (testName === '__ft_custom__') {
+    const custom = document.getElementById('f-ft-custom-name');
+    testName = custom ? custom.value.trim() : '';
+    if (!testName) { alert('種目名を入力してください'); return; }
+  }
   _ftItems.push({
-    testName: document.getElementById('f-ft-test').value,
+    testName,
     result,
     unit: document.getElementById('f-ft-unit').value,
   });
@@ -2197,6 +2347,484 @@ function addExerciseManually(cat) {
     }
   }
   renderExerciseMgr();
+}
+
+
+// ========== CONDITION MANAGEMENT ==========
+let condTab = 'check'; // 'injury' | 'check'
+
+function condition() {
+  setTopbarActions('');
+  renderCondition();
+}
+
+function renderCondition() {
+  const tabBar = `
+    <div class="tabs" style="margin-bottom:1rem">
+      <button class="tab ${condTab==='check'?'active':''}" onclick="condTab='check';renderCondition()">📋 状態チェック</button>
+      <button class="tab ${condTab==='injury'?'active':''}" onclick="condTab='injury';renderCondition()">🤕 怪我管理</button>
+    </div>`;
+  setContent(tabBar + (condTab === 'injury' ? renderInjuryPanel() : renderCondCheckPanel()));
+}
+
+// ---- 怪我管理 ----
+const INJURY_PASSWORD = 'tr2026!';
+let injuryUnlocked = false;
+let injurySearch = '';
+
+function renderInjuryPanel() {
+  // パスワード未入力なら認証画面
+  if (!injuryUnlocked) {
+    return `
+      <div style="max-width:320px;margin:3rem auto;text-align:center">
+        <div style="font-size:40px;margin-bottom:1rem">🔒</div>
+        <div style="font-size:15px;font-weight:600;margin-bottom:.5rem">パスワードを入力してください</div>
+        <div style="font-size:13px;color:var(--text3);margin-bottom:1.25rem">怪我管理はトレーナー限定のページです</div>
+        <input class="form-input" type="password" id="inj-pw-input" placeholder="パスワード"
+          style="text-align:center;margin-bottom:10px;letter-spacing:2px"
+          onkeydown="if(event.key==='Enter')checkInjuryPassword()" />
+        <button class="btn btn-primary" style="width:100%;justify-content:center" onclick="checkInjuryPassword()">解錠</button>
+        <div id="inj-pw-error" style="color:var(--red);font-size:12px;margin-top:8px"></div>
+      </div>`;
+  }
+
+  const q = injurySearch.toLowerCase();
+  let records = [...state.injuries].sort((a,b) => b.date.localeCompare(a.date));
+  if (q) records = records.filter(r => {
+    const p = getPlayer(r.playerId);
+    return p && p.name.toLowerCase().includes(q);
+  });
+
+  return `
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:1rem;flex-wrap:wrap">
+      <input class="search-input" placeholder="選手名で検索..." value="${injurySearch}"
+        oninput="injurySearch=this.value;renderCondition()" style="width:180px" />
+      <button class="btn btn-primary btn-sm" style="margin-left:auto" onclick="openInjuryForm()">＋ 怪我を記録</button>
+      <button class="btn btn-ghost btn-sm" onclick="injuryUnlocked=false;renderCondition()">🔒 ロック</button>
+    </div>
+    ${records.length === 0
+      ? '<div class="empty"><div class="empty-icon">🤕</div><div class="empty-text">怪我の記録がありません</div></div>'
+      : records.map(r => {
+          const p = getPlayer(r.playerId);
+          if (!p) return '';
+          const statusColor = r.status === '復帰済み' ? 'var(--green)' : r.status === '練習可（制限あり）' ? 'var(--yellow)' : r.status === '受診' ? 'var(--orange)' : 'var(--red)';
+          return `
+            <div class="card" style="margin-bottom:.75rem;border-left:3px solid ${statusColor}">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+                <div style="display:flex;align-items:center;gap:8px">
+                  <div class="player-avatar" style="background:${avatarColor(parseInt((p.id||'p0').slice(1)))}; width:30px;height:30px;font-size:11px">${initials(p.name)}</div>
+                  <div>
+                    <div style="font-size:14px;font-weight:600">${p.name}</div>
+                    <div style="font-size:11px;color:var(--text3)">${formatDate(r.date)}</div>
+                  </div>
+                </div>
+                <div style="display:flex;align-items:center;gap:6px">
+                  <span style="font-size:12px;font-weight:600;padding:3px 10px;border-radius:20px;background:${statusColor}22;color:${statusColor};border:1px solid ${statusColor}44">${r.status}</span>
+                  <button class="btn btn-ghost btn-xs" onclick="openInjuryEdit('${r.id}')">編集</button>
+                  <button class="btn btn-danger btn-xs" onclick="deleteInjury('${r.id}')">削除</button>
+                </div>
+              </div>
+              <div style="display:flex;gap:12px;font-size:13px;flex-wrap:wrap">
+                <div><span style="color:var(--text3)">部位：</span>${r.part}</div>
+                <div><span style="color:var(--text3)">種類：</span>${r.type}</div>
+                ${r.returnDate ? `<div><span style="color:var(--text3)">復帰予定：</span>${formatDate(r.returnDate)}</div>` : ''}
+              </div>
+              ${r.memo ? `<div style="font-size:12px;color:var(--text3);margin-top:6px">${r.memo}</div>` : ''}
+            </div>`;
+        }).join('')
+    }`;
+}
+
+function checkInjuryPassword() {
+  const inp = document.getElementById('inj-pw-input');
+  if (!inp) return;
+  if (inp.value === INJURY_PASSWORD) {
+    injuryUnlocked = true;
+    renderCondition();
+  } else {
+    const err = document.getElementById('inj-pw-error');
+    if (err) err.textContent = 'パスワードが違います';
+    inp.value = '';
+  }
+}
+
+const BODY_PARTS = ['頭・首','肩','肘','手首・手','胸・背中','腰','股関節','膝','足首','その他'];
+const INJURY_TYPES = ['打撲','捻挫','肉離れ','骨折','脱臼','疲労骨折','筋肉痛','その他'];
+const INJURY_STATUSES = ['受傷','受診','練習可（制限あり）','復帰済み'];
+
+function openInjuryForm(existing) {
+  const isEdit = !!existing;
+  openModal(isEdit ? '怪我記録を編集' : '怪我を記録', `
+    <div class="form-row form-row-2">
+      <div class="form-group"><label class="form-label">選手 *</label>
+        <select class="form-select" id="inj-player">
+          <option value="">選択...</option>
+          ${state.players.map(p=>`<option value="${p.id}" ${isEdit&&existing.playerId===p.id?'selected':''}>${p.name}</option>`).join('')}
+        </select>
+      </div>
+      <div class="form-group"><label class="form-label">日付</label>
+        <input class="form-input" type="date" id="inj-date" value="${isEdit?existing.date:today()}" />
+      </div>
+    </div>
+    <div class="form-row form-row-2">
+      <div class="form-group"><label class="form-label">部位</label>
+        <select class="form-select" id="inj-part">
+          ${BODY_PARTS.map(p=>`<option ${isEdit&&existing.part===p?'selected':''}>${p}</option>`).join('')}
+        </select>
+      </div>
+      <div class="form-group"><label class="form-label">種類</label>
+        <select class="form-select" id="inj-type">
+          ${INJURY_TYPES.map(t=>`<option ${isEdit&&existing.type===t?'selected':''}>${t}</option>`).join('')}
+        </select>
+      </div>
+    </div>
+    <div class="form-row form-row-2">
+      <div class="form-group"><label class="form-label">状態</label>
+        <select class="form-select" id="inj-status">
+          ${INJURY_STATUSES.map(s=>`<option ${isEdit&&existing.status===s?'selected':''}>${s}</option>`).join('')}
+        </select>
+      </div>
+      <div class="form-group"><label class="form-label">復帰予定日</label>
+        <input class="form-input" type="date" id="inj-return" value="${isEdit&&existing.returnDate?existing.returnDate:''}" />
+      </div>
+    </div>
+    <div class="form-group"><label class="form-label">メモ</label>
+      <input class="form-input" id="inj-memo" placeholder="詳細、治療内容など..." value="${isEdit?existing.memo||'':''}" />
+    </div>
+  `, `<button class="btn btn-ghost" onclick="closeModal()">キャンセル</button>
+      <button class="btn btn-primary" onclick="${isEdit?`saveInjuryEdit('${existing.id}')`:'saveInjury()'}">保存</button>`);
+}
+
+function saveInjury() {
+  const playerId = document.getElementById('inj-player').value;
+  if (!playerId) { alert('選手を選択してください'); return; }
+  const rec = {
+    id: 'inj-' + Date.now(),
+    playerId,
+    date: document.getElementById('inj-date').value,
+    part: document.getElementById('inj-part').value,
+    type: document.getElementById('inj-type').value,
+    status: document.getElementById('inj-status').value,
+    returnDate: document.getElementById('inj-return').value || null,
+    memo: document.getElementById('inj-memo').value,
+    createdAt: new Date().toISOString(),
+  };
+  state.injuries.push(rec);
+  saveData('injuries', state.injuries);
+  closeModal();
+  showToast('怪我を記録しました');
+  renderCondition();
+}
+
+function openInjuryEdit(id) {
+  const rec = state.injuries.find(r => r.id === id);
+  if (rec) openInjuryForm(rec);
+}
+
+function saveInjuryEdit(id) {
+  const rec = state.injuries.find(r => r.id === id);
+  if (!rec) return;
+  rec.playerId = document.getElementById('inj-player').value;
+  rec.date = document.getElementById('inj-date').value;
+  rec.part = document.getElementById('inj-part').value;
+  rec.type = document.getElementById('inj-type').value;
+  rec.status = document.getElementById('inj-status').value;
+  rec.returnDate = document.getElementById('inj-return').value || null;
+  rec.memo = document.getElementById('inj-memo').value;
+  saveData('injuries', state.injuries);
+  closeModal();
+  showToast('怪我記録を更新しました');
+  renderCondition();
+}
+
+function deleteInjury(id) {
+  if (!confirm('この記録を削除しますか？')) return;
+  state.injuries = state.injuries.filter(r => r.id !== id);
+  saveData('injuries', state.injuries);
+  showToast('削除しました', '🗑️');
+  renderCondition();
+}
+
+// ---- 状態チェック ----
+// 症状チェックボックス項目
+const SYMPTOM_ITEMS = ['頭痛', '吐き気', '腹痛', '喉の痛み', '発熱'];
+
+// ナビゲーション: [parentEventId | null, currentEventId | null]
+// null,null = トップ一覧
+// parentId,null = 親フォルダ内のサブフォルダ一覧
+// *,eventId = そのイベントの選手一覧
+let condNavStack = []; // [{id, name}]の履歴スタック
+
+function renderCondCheckPanel() {
+  if (condNavStack.length === 0) return renderCondEventList(null);
+  const current = condNavStack[condNavStack.length - 1];
+  if (current.type === 'folder') return renderCondEventList(current.id);
+  return renderCondEventDetail(current.id);
+}
+
+function condNavPush(item) { condNavStack.push(item); renderCondition(); }
+function condNavBack() { condNavStack.pop(); renderCondition(); }
+function condNavReset() { condNavStack = []; renderCondition(); }
+
+function typeColor(type) {
+  return type==='試合'?'var(--red)':type==='合宿'?'var(--purple)':type==='練習'?'var(--accent)':type==='フォルダ'?'var(--yellow)':'var(--text2)';
+}
+
+// ---- フォルダ/イベント一覧 ----
+function renderCondEventList(parentId) {
+  const parentIdStr = parentId || null;
+  const items = [...(state.condEvents||[])]
+    .filter(e => (e.parentId||null) === parentIdStr)
+    .sort((a,b) => b.date.localeCompare(a.date));
+
+  const breadcrumb = condNavStack.length > 0
+    ? `<div style="display:flex;align-items:center;gap:6px;margin-bottom:1rem;flex-wrap:wrap">
+        <button class="btn btn-ghost btn-sm" onclick="condNavBack()">← 戻る</button>
+        ${condNavStack.map((s,i) => `<span style="font-size:12px;color:var(--text3)">${i>0?'›':''} ${s.name}</span>`).join('')}
+      </div>` : '';
+
+  return `
+    ${breadcrumb}
+    <div style="display:flex;gap:6px;justify-content:flex-end;margin-bottom:1rem">
+      <button class="btn btn-ghost btn-sm" data-pid="${parentIdStr||''}" onclick="openCondEventForm('folder',this.dataset.pid||null)">📁 フォルダ作成</button>
+      <button class="btn btn-primary btn-sm" data-pid="${parentIdStr||''}" onclick="openCondEventForm('event',this.dataset.pid||null)">＋ イベント作成</button>
+    </div>
+    ${items.length === 0
+      ? `<div class="empty"><div class="empty-icon">📋</div><div class="empty-text">まだ何もありません</div></div>`
+      : items.map(ev => {
+          const isFolder = ev.type === 'フォルダ';
+          const checks = isFolder ? [] : (state.conditionChecks||[]).filter(c => c.eventId === ev.id);
+          const checkedCount = new Set(checks.map(c => c.playerId)).size;
+          const childCount = isFolder ? (state.condEvents||[]).filter(e => e.parentId === ev.id).length : 0;
+          const color = typeColor(ev.type);
+          return `
+            <div class="card" style="margin-bottom:.75rem;cursor:pointer;border-left:3px solid ${color}"
+              data-evid="${ev.id}" data-evname="${ev.name.replace(/"/g,'&quot;')}" data-evtype="${isFolder?'folder':'detail'}"
+              onclick="condNavPush({id:this.dataset.evid,name:this.dataset.evname,type:this.dataset.evtype})"
+            >
+              <div style="display:flex;align-items:center;justify-content:space-between">
+                <div style="flex:1;min-width:0">
+                  <div style="display:flex;align-items:center;gap:6px;margin-bottom:3px">
+                    <span style="font-size:16px">${isFolder?'📁':'📋'}</span>
+                    <span style="font-size:12px;font-weight:600;padding:2px 8px;border-radius:12px;background:${color}22;color:${color}">${ev.type}</span>
+                    <span style="font-size:15px;font-weight:700">${ev.name}</span>
+                  </div>
+                  <div style="font-size:12px;color:var(--text3)">${formatDate(ev.date)} ${isFolder ? `— ${childCount}項目` : `— ${checkedCount}/${state.players.length}名 記録済み`}</div>
+                </div>
+                <div style="display:flex;align-items:center;gap:6px">
+                  ${!isFolder ? `<div style="text-align:right"><div style="font-size:14px;font-weight:700;color:${checkedCount===state.players.length?'var(--green)':'var(--text2)'}">${state.players.length?Math.round(checkedCount/state.players.length*100):0}%</div></div>` : ''}
+                  <span style="font-size:20px;color:var(--text3)">›</span>
+                </div>
+              </div>
+            </div>`;
+        }).join('')
+    }`;
+}
+
+function openCondEventForm(createType, parentId) {
+  const isFolder = createType === 'folder';
+  openModal(isFolder ? 'フォルダを作成' : 'イベントを作成', `
+    <div class="form-group"><label class="form-label">${isFolder?'フォルダ名':'イベント名'} *</label>
+      <input class="form-input" id="cev-name" placeholder="${isFolder?'例: 春季リーグ、夏合宿':'例: 試合前、試合後、1日目'}" />
+    </div>
+    <div class="form-row form-row-2">
+      <div class="form-group"><label class="form-label">日付</label>
+        <input class="form-input" type="date" id="cev-date" value="${today()}" />
+      </div>
+      ${!isFolder ? `<div class="form-group"><label class="form-label">種類</label>
+        <select class="form-select" id="cev-type">
+          <option>練習</option><option>試合</option><option>合宿</option><option>その他</option>
+        </select>
+      </div>` : ''}
+    </div>
+    <div class="form-group"><label class="form-label">メモ</label>
+      <input class="form-input" id="cev-memo" placeholder="補足情報..." />
+    </div>
+  `, `<button class="btn btn-ghost" onclick="closeModal()">キャンセル</button>
+     <button class="btn btn-primary" id="cev-save-btn" data-type="${createType}" data-pid="${parentId||''}" onclick="saveCondEvent(this.dataset.type,this.dataset.pid||null)">作成</button>`);
+}
+
+function saveCondEvent(createType, parentId) {
+  const name = document.getElementById('cev-name').value.trim();
+  if (!name) { alert('名前を入力してください'); return; }
+  const isFolder = createType === 'folder';
+  const typeEl = document.getElementById('cev-type');
+  const ev = {
+    id: 'cev-' + Date.now(),
+    name,
+    date: document.getElementById('cev-date').value,
+    type: isFolder ? 'フォルダ' : (typeEl ? typeEl.value : 'その他'),
+    parentId: parentId || null,
+    memo: document.getElementById('cev-memo').value,
+    createdAt: new Date().toISOString(),
+  };
+  if (!Array.isArray(state.condEvents)) state.condEvents = [];
+  state.condEvents.push(ev);
+  saveData('condEvents', state.condEvents);
+  closeModal();
+  showToast(`「${name}」を作成しました`);
+  if (!isFolder) condNavPush({id: ev.id, name: ev.name, type: 'detail'});
+  else renderCondition();
+}
+
+// ---- イベント詳細（選手一覧） ----
+function renderCondEventDetail(eventId) {
+  const ev = (state.condEvents||[]).find(e => e.id === eventId);
+  if (!ev) { condNavBack(); return renderCondCheckPanel(); }
+  if (!Array.isArray(state.conditionChecks)) state.conditionChecks = [];
+  const checks = state.conditionChecks.filter(c => c.eventId === eventId);
+  const checkedCount = new Set(checks.map(c => c.playerId)).size;
+  const color = typeColor(ev.type);
+
+  const breadcrumb = `<div style="display:flex;align-items:center;gap:6px;margin-bottom:1rem;flex-wrap:wrap">
+    <button class="btn btn-ghost btn-sm" onclick="condNavBack()">← 戻る</button>
+    ${condNavStack.map(s => `<span style="font-size:12px;color:var(--text3)">› ${s.name}</span>`).join('')}
+    <button class="btn btn-danger btn-xs" style="margin-left:auto" onclick="deleteCondEvent('${ev.id}')">削除</button>
+  </div>`;
+
+  return `${breadcrumb}
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:1rem">
+      <span style="font-size:12px;padding:2px 8px;border-radius:12px;background:${color}22;color:${color};font-weight:600">${ev.type}</span>
+      <span style="font-size:16px;font-weight:700">${ev.name}</span>
+      <span style="font-size:12px;color:var(--text3)">${formatDate(ev.date)}</span>
+      <span style="font-size:13px;color:var(--text2);margin-left:auto">${checkedCount}/${state.players.length}名</span>
+    </div>
+    ${state.players.map(p => {
+      const check = checks.find(c => c.playerId === p.id);
+      const symptoms = check ? (check.symptoms || []) : [];
+      const hasInjury = check && check.injuryNote;
+      return `
+        <div class="card" style="margin-bottom:.5rem">
+          <div style="display:flex;align-items:center;gap:8px">
+            <div class="player-avatar" style="background:${avatarColor(parseInt((p.id||'p0').slice(1)))}; width:28px;height:28px;font-size:10px">${initials(p.name)}</div>
+            <div style="flex:1;min-width:0">
+              <div style="font-size:13px;font-weight:600">${p.name}</div>
+              ${check ? `<div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:3px">
+                ${symptoms.length > 0 ? symptoms.map(s => `<span style="font-size:10px;padding:1px 6px;border-radius:10px;background:rgba(248,113,113,0.15);color:#f87171;border:1px solid rgba(248,113,113,0.3)">${s}</span>`).join('') : '<span style="font-size:11px;color:var(--green)">症状なし</span>'}
+                ${check.otherSymptom ? `<span style="font-size:10px;padding:1px 6px;border-radius:10px;background:rgba(251,146,60,0.15);color:var(--orange)">${check.otherSymptom}</span>` : ''}
+                ${hasInjury ? `<span style="font-size:10px;padding:1px 6px;border-radius:10px;background:rgba(167,139,250,0.15);color:var(--purple)">🤕 怪我あり</span>` : ''}
+              </div>` : ''}
+            </div>
+            ${check
+              ? `<button class="btn btn-ghost btn-xs" onclick="openCondCheckForm('${p.id}','${eventId}')">編集</button>`
+              : `<button class="btn btn-green btn-xs" onclick="openCondCheckForm('${p.id}','${eventId}')">入力</button>`}
+          </div>
+          ${check && (check.memo || check.injuryNote) ? `
+            <div style="font-size:11px;color:var(--text3);margin-top:4px;padding-left:36px">
+              ${check.memo ? `メモ：${check.memo}` : ''}
+              ${check.injuryNote ? `<br>🤕 怪我：${check.injuryNote}` : ''}
+            </div>` : ''}
+        </div>`;
+    }).join('')}`;
+}
+
+function deleteCondEvent(id) {
+  if (!confirm('削除しますか？関連する記録もすべて削除されます。')) return;
+  // 子イベントも再帰削除
+  const toDelete = new Set();
+  const collect = (pid) => {
+    toDelete.add(pid);
+    (state.condEvents||[]).filter(e => e.parentId === pid).forEach(e => collect(e.id));
+  };
+  collect(id);
+  state.condEvents = (state.condEvents||[]).filter(e => !toDelete.has(e.id));
+  state.conditionChecks = (state.conditionChecks||[]).filter(c => !toDelete.has(c.eventId));
+  saveData('condEvents', state.condEvents);
+  saveData('conditionChecks', state.conditionChecks);
+  condNavBack();
+  showToast('削除しました', '🗑️');
+  renderCondition();
+}
+
+// ---- 状態チェック入力フォーム ----
+function openCondCheckForm(presetPlayerId, eventId) {
+  const ev = eventId ? (state.condEvents||[]).find(e => e.id === eventId) : null;
+  if (!Array.isArray(state.conditionChecks)) state.conditionChecks = [];
+  const existing = presetPlayerId && eventId
+    ? state.conditionChecks.find(c => c.playerId === presetPlayerId && c.eventId === eventId)
+    : null;
+  const exSymptoms = existing ? (existing.symptoms || []) : [];
+
+  openModal(`状態チェック${ev ? ' — ' + ev.name : ''}`, `
+    <div class="form-group" style="margin-bottom:1rem"><label class="form-label">選手 *</label>
+      <select class="form-select" id="cond-player">
+        <option value="">選択...</option>
+        ${state.players.map(p=>`<option value="${p.id}" ${presetPlayerId===p.id?'selected':''}>${p.name}</option>`).join('')}
+      </select>
+    </div>
+
+    <div style="font-size:13px;font-weight:600;margin-bottom:8px">📋 体調チェック（該当するものをタップ）</div>
+    <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:1rem">
+      ${SYMPTOM_ITEMS.map(s => {
+        const on = exSymptoms.includes(s);
+        return `<div class="symptom-chip" data-sym="${s}" data-on="${on?'1':'0'}" onclick="toggleSymptom(this)"
+          style="padding:6px 12px;border-radius:20px;font-size:13px;font-weight:500;cursor:pointer;transition:all 0.15s;border:2px solid ${on?'#f87171':'var(--border2)'};color:${on?'#f87171':'var(--text2)'};background:${on?'rgba(248,113,113,0.15)':'transparent'}">
+          ${s}
+        </div>`;
+      }).join('')}
+    </div>
+    <div class="form-group" style="margin-bottom:1rem">
+      <label class="form-label">その他の症状</label>
+      <input class="form-input" id="cond-other-symptom" placeholder="自由記入..." value="${existing&&existing.otherSymptom?existing.otherSymptom:''}" />
+    </div>
+
+    <div style="font-size:13px;font-weight:600;margin-bottom:8px">🤕 怪我</div>
+    <div class="form-group">
+      <input class="form-input" id="cond-inj-note" placeholder="怪我がある場合は自由記入（例：左膝打撲）" value="${existing&&existing.injuryNote?existing.injuryNote:''}" />
+    </div>
+
+    <div class="form-group"><label class="form-label">その他メモ</label>
+      <input class="form-input" id="cond-memo" placeholder="自由記入..." value="${existing?existing.memo||'':''}" />
+    </div>
+  `, `<button class="btn btn-ghost" onclick="closeModal()">キャンセル</button>
+      <button class="btn btn-primary" onclick="saveCondCheck('${eventId||''}')">保存</button>`);
+}
+
+function toggleSymptom(el) {
+  const active = el.dataset.on === '1';
+  el.dataset.on = active ? '0' : '1';
+  el.style.borderColor = active ? 'var(--border2)' : '#f87171';
+  el.style.color = active ? 'var(--text2)' : '#f87171';
+  el.style.background = active ? 'transparent' : 'rgba(248,113,113,0.15)';
+}
+
+function toggleInjuryFields() {}
+
+function selectCondLevel(el) {
+  // kept for compat
+}
+
+function saveCondCheck(eventId) {
+  const playerId = document.getElementById('cond-player').value;
+  if (!playerId) { alert('選手を選択してください'); return; }
+  const ev = eventId ? (state.condEvents||[]).find(e => e.id === eventId) : null;
+  const date = ev ? ev.date : today();
+
+  const symptoms = [...document.querySelectorAll('.symptom-chip[data-on="1"]')].map(c => c.dataset.sym);
+  const otherSymptom = document.getElementById('cond-other-symptom') ? document.getElementById('cond-other-symptom').value.trim() : '';
+  const injuryNote = document.getElementById('cond-inj-note') ? document.getElementById('cond-inj-note').value.trim() : '';
+  const injuryPart = null;
+  const injuryType = null;
+
+  if (!Array.isArray(state.conditionChecks)) state.conditionChecks = [];
+  const idx = state.conditionChecks.findIndex(c =>
+    c.playerId === playerId && (eventId ? c.eventId === eventId : c.date === date)
+  );
+  const rec = {
+    id: 'cond-' + playerId + '-' + (eventId || date),
+    playerId, date,
+    eventId: eventId || null,
+    symptoms, otherSymptom,
+    injuryPart, injuryType, injuryNote,
+    memo: document.getElementById('cond-memo') ? document.getElementById('cond-memo').value : '',
+    createdAt: new Date().toISOString(),
+  };
+  if (idx >= 0) state.conditionChecks[idx] = rec;
+  else state.conditionChecks.push(rec);
+  saveData('conditionChecks', state.conditionChecks);
+  closeModal();
+  showToast('状態を記録しました');
+  renderCondition();
 }
 
 // ========== START ==========
